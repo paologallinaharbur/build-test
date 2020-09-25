@@ -38,4 +38,4 @@ build: clone-repo
 # Import fragments
 include ../package.mk
 
-.PHONY: clone-repo build clean all
+.PHONY: clone-repo build 
