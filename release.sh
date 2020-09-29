@@ -32,7 +32,7 @@ packageLinux(){
     IFS="/" read tmp exporter_name exporter_yaml <<< $EXPORTER_PATH 
 
     if [ $exporter_name != $NAME ]; then
-        echo "The exporter.yml is in a wrong folder. The name in the definition does not match with the foldername" 
+        echo "The exporter.yml is in a wrong folder. The name in the definition '$NAME' does not match with the foldername '$exporter_name'" 
         exit 1
     fi
 

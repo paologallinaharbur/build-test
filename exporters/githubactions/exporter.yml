@@ -1,4 +1,4 @@
-name: github-actions
+name: githubactions
 version: v1.2
 exporter_repo_url: https://github.com/Spendesk/github-actions-exporter
 exporter_tag: v1.2
