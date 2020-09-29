@@ -95,7 +95,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }} 
-          asset_path: ${{ steps.package.outputs.EXPORTER_PATH }}/target/packages/deb/
+          asset_path: ./exporters/${{ steps.package.outputs.NAME }}/target/packages/deb/
           asset_name: ${{ steps.package.outputs.NAME }}_${{ steps.package.outputs.VERSION }}-1_amd64.deb
           asset_content_type: deb package
       - name: Upload Release Asset TAR
@@ -104,7 +104,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }}
-          asset_path: ${{ steps.package.outputs.EXPORTER_PATH }}/target/packages/tar/
+          asset_path: ./exporters/${{ steps.package.outputs.NAME }}/target/packages/tar/
           asset_name: ${{ steps.package.outputs.NAME }}_linux_${{ steps.package.outputs.VERSION }}_amd64.tar.gz
           asset_content_type: tarball
       - name: Upload Release Asset RPM
@@ -113,7 +113,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }} 
-          asset_path: ${{ steps.package.outputs.EXPORTER_PATH }}/target/packages/rpm/
+          asset_path: ./exporters/${{ steps.package.outputs.NAME }}/target/packages/rpm/
           asset_name: /${{ steps.package.outputs.NAME }}-${{ steps.package.outputs.VERSION }}-1.x86_64.rmp
           asset_content_type: rpm package
 
@@ -153,6 +153,16 @@ jobs:
           echo ${{ needs.create_release.outputs.CREATE_RELEASE }}
       - name: DEBUG2
         if: ${{ needs.create_release.outputs.CREATE_RELEASE }} == 'true'
+        run: |
+          echo "IF you see this there is something wrong"
+          echo ${{ needs.create_release.outputs.CREATE_RELEASE }}
+      - name: DEBUG4
+        if: 'true' == 'false'
+        run: |
+          echo "IF you see this there is something wrong"
+          echo ${{ needs.create_release.outputs.CREATE_RELEASE }}
+      - name: DEBUG5
+        if: 'true' == 'true'
         run: |
           echo "IF you see this there is something wrong"
           echo ${{ needs.create_release.outputs.CREATE_RELEASE }}
