@@ -15,6 +15,8 @@ jobs:
       - name: Check file changed
         id: check
         run : |
+          pwd
+          ls
           source ./release.sh
           checkChanges
           echo "::set-output name=NAME::$NAME"
