@@ -26,7 +26,6 @@ setStepOutput(){
     echo "::set-output name=EXPORTER_CHANGELOG::${EXPORTER_CHANGELOG}"
     echo "::set-output name=CREATE_RELEASE::${CREATE_RELEASE}"
     echo "::set-output name=EXPORTER_PATH::${EXPORTER_PATH}"
-
 }
 
 packageLinux(){

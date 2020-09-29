@@ -32,7 +32,13 @@ jobs:
           getExporterPath
           loadVariables
           packageLinux 
-          setStepOutput
+          echo "::set-output name=NAME::${NAME}"
+          echo "::set-output name=EXPORTER_HEAD::${EXPORTER_HEAD}"
+          echo "::set-output name=EXPORTER_REPO_URL::${EXPORTER_REPO_URL}"
+          echo "::set-output name=VERSION::${VERSION}"
+          echo "::set-output name=EXPORTER_CHANGELOG::${EXPORTER_CHANGELOG}"
+          echo "::set-output name=CREATE_RELEASE::${CREATE_RELEASE}"
+          echo "::set-output name=EXPORTER_PATH::${EXPORTER_PATH}"
 
           echo Creating a release: ${CREATE_RELEASE} having tag ${VERSION} and remote HEAD ${EXPORTER_HEAD}
           echo Changelog: ${EXPORTER_CHANGELOG}
