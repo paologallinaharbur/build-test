@@ -1,6 +1,6 @@
-NAME: github-actions
-VERSION: v1.2
-EXPORTER_REPO_URL: https://github.com/Spendesk/github-actions-exporter
-EXPORTER_TAG: v1.2
-EXPORTER_COMMIT: 3
-EXPORTER_CHANGELOG: "fix structure runners- github api changedsdf.  "
+name: github-actions
+version: v1.2
+exporter_repo_url: https://github.com/Spendesk/github-actions-exporter
+exporter_tag: v1.2
+exporter_commit: 3wfwef
+exporter_changelog: "Changelog for the current version"

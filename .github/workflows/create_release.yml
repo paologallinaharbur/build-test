@@ -6,8 +6,9 @@ on: pull_request
 name: Create Release
 
 jobs:
-  build:
+  create_release:
     name: Create Release
+    id: create_release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v2
@@ -19,6 +20,10 @@ jobs:
         run: |
           sudo apt-get install rpm ruby ruby-dev rubygems build-essential
           sudo gem install --no-document fpm
+      - name: Install yq
+        run: |
+          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
       - name: Check file changed
         id: check
         run : |
@@ -27,15 +32,12 @@ jobs:
           
           git fetch -at origin --unshallow
           source ./release.sh
-          checkChanges
-          callMakefile $exporter
 
-          echo "::set-output name=NAME::${NAME}"
-          echo "::set-output name=EXPORTER_HEAD::${EXPORTER_HEAD}"
-          echo "::set-output name=EXPORTER_REPO_URL::${EXPORTER_REPO_URL}"
-          echo "::set-output name=VERSION::${VERSION}"
-          echo "::set-output name=EXPORTER_CHANGELOG::${EXPORTER_CHANGELOG}"
-          echo "::set-output name=CREATE_RELEASE::${CREATE_RELEASE}"
+          getExporterPath
+          loadVariables
+          packageLinux
+          setStepOutput
+
           echo Creating a release: ${CREATE_RELEASE} having tag ${VERSION} and remote HEAD ${EXPORTER_HEAD}
           echo Changelog: ${EXPORTER_CHANGELOG}
           
@@ -54,3 +56,76 @@ jobs:
               - ${{ steps.check.outputs.EXPORTER_CHANGELOG }}  
           draft: true
           prerelease: false
+
+###
+###   LINUX PACKAGING
+###
+
+  push_linux_artifacts:
+    needs: [create_release]
+    name: Push Linux Artifacts
+    runs-on: ubuntu-latest
+    if: ${{ needs.create_release.outputs.CREATE_RELEASE }} == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install yq
+        run: |
+          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+      - name: package linux
+        run : |
+          git fetch -at origin --unshallow
+          source ./release.sh
+          
+          export EXPORTER_PATH=${{needs.create_release.outputs.EXPORTER_PATH}}
+          loadVariables
+          packageLinux
+
+###
+###   UPLOAD ASSETS 
+###
+
+      - name: Upload Release Asset deb
+        id: upload-release-asset deb
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }} 
+          asset_path: ${{needs.create_release.outputs.EXPORTER_PATH}}/target/packages/deb/${{needs.create_release.outputs.NAME}}_${{needs.create_release.outputs.VERSION}}-1_amd64.deb
+          asset_name: ${{needs.create_release.outputs.NAME}}_${{needs.create_release.outputs.VERSION}}-1_amd64.deb
+          asset_content_type: deb package
+      - name: Upload Release Asset tar
+        id: upload-release-asset-tar
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{needs.create_release.outputs.EXPORTER_PATH}}/target/packages/tar/${{needs.create_release.outputs.NAME}}_linux_${{needs.create_release.outputs.VERSION}}_amd64.tar.gz
+          asset_name: ${{needs.create_release.outputs.NAME}}_linux_${{needs.create_release.outputs.VERSION}}_amd64.tar.gz
+          asset_content_type: tarball
+      - name: Upload Release Asset RPM
+        id: upload-release-asset-rpm 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: ${{needs.create_release.outputs.EXPORTER_PATH}}/target/packages/rpm/${{needs.create_release.outputs.NAME}}-${{needs.create_release.outputs.VERSION}}-1.x86_64.rmp
+          asset_name: ${{needs.create_release.outputs.EXPORTER_PATH}}/target/packages/rpm/${{needs.create_release.outputs.NAME}}-${{needs.create_release.outputs.VERSION}}-1.x86_64.rmp
+          asset_content_type: rpm package
+
+  push_Windows_artifacts:
+    needs: [create_release]
+    name: Push Linux Artifacts
+    runs-on: ubuntu-latest
+    if: ${{ needs.create_release.outputs.CREATE_RELEASE }} == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install yq
+        run: |
+          touch a.msi
+          
