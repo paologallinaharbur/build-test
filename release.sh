@@ -12,7 +12,7 @@ loadVariables(){
             myarray+=( "${string%%"$delimiter"*}" )
             string=${string#*"$delimiter"}
         done
-        export "${myarray[1]}"="${myarray[2]}"
+        export "${myarray[0]}"="${myarray[1]}"
         
     done < $filename
 
