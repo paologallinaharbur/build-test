@@ -38,6 +38,7 @@ jobs:
           echo Changelog: ${EXPORTER_CHANGELOG}
           
       - name: Create Release
+        id: create_release
         if: ${{ steps.check.outputs.CREATE_RELEASE }} == 'true'
         uses: actions/create-release@v1
         env:
@@ -54,6 +55,7 @@ jobs:
     outputs:
       CREATE_RELEASE: ${{ steps.check.outputs.CREATE_RELEASE }}
       EXPORTER_PATH: ${{ steps.check.outputs.EXPORTER_PATH }}
+      UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
 
 ###
 ###   LINUX PACKAGING
@@ -87,17 +89,12 @@ jobs:
           loadVariables
           packageLinux
           setStepOutput
-
-###
-###   UPLOAD ASSETS 
-###
-
       - name: Upload Release Asset deb
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.package.outputs.upload_url }} 
+          upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }} 
           asset_path: ${{ steps.package.outputs.EXPORTER_PATH }}/target/packages/deb/${{ steps.package.outputs.NAME }}_${{ steps.package.outputs.VERSION }}-1_amd64.deb
           asset_name: ${{ steps.package.outputs.NAME }}_${{ steps.package.outputs.VERSION }}-1_amd64.deb
           asset_content_type: deb package
@@ -106,7 +103,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.package.outputs.upload_url }}
+          upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }}
           asset_path: ${{ steps.package.outputs.EXPORTER_PATH }}/target/packages/tar/${{ steps.package.outputs.NAME }}_linux_${{ steps.package.outputs.VERSION }}_amd64.tar.gz
           asset_name: ${{ steps.package.outputs.NAME }}_linux_${{ steps.package.outputs.VERSION }}_amd64.tar.gz
           asset_content_type: tarball
@@ -115,10 +112,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }} 
           asset_path: ${{ steps.package.outputs.EXPORTER_PATH }}/target/packages/rpm/${{ steps.package.outputs.NAME }}-${{ steps.package.outputs.VERSION }}-1.x86_64.rmp
           asset_name: ${{ steps.package.outputs.EXPORTER_PATH }}/target/packages/rpm/${{ steps.package.outputs.NAME }}-${{ steps.package.outputs.VERSION }}-1.x86_64.rmp
           asset_content_type: rpm package
+
+
+###
+###   Windows Packaging 
+###
 
   push_Windows_artifacts:
     needs: [create_release]
