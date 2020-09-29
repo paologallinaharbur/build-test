@@ -18,13 +18,14 @@ jobs:
           git fetch -at origin --unshallow
           source ./release.sh
           checkChanges
+          callMakefile
           echo "::set-output name=NAME::${NAME}"
           echo "::set-output name=EXPORTER_HEAD::${EXPORTER_HEAD}"
           echo "::set-output name=EXPORTER_REPO_URL::${EXPORTER_REPO_URL}"
           echo "::set-output name=VERSION::${VERSION}"
           echo "::set-output name=EXPORTER_CHANGELOG::${EXPORTER_CHANGELOG}"
           echo "::set-output name=CREATE_RELEASE::${CREATE_RELEASE}"
-          echo ${CREATE_RELEASE}
+          echo Creating a release: ${CREATE_RELEASE}
           echo ${EXPORTER_CHANGELOG}
           
       - name: Create Release
