@@ -10,15 +10,22 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.13.1' 
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Check file changed
         id: check
         run : |
+          echo $GOPATH
+          pwd
+          
           git fetch -at origin --unshallow
           source ./release.sh
           checkChanges
           callMakefile $exporter
+
           echo "::set-output name=NAME::${NAME}"
           echo "::set-output name=EXPORTER_HEAD::${EXPORTER_HEAD}"
           echo "::set-output name=EXPORTER_REPO_URL::${EXPORTER_REPO_URL}"
