@@ -19,15 +19,12 @@ jobs:
         run: |
           sudo apt-get install rpm ruby ruby-dev rubygems build-essential
           sudo gem install --no-document fpm
-      - name: Install yq
-        run: |
           sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
       - name: Check exporters have been modified
         id: check
         run : |
           export GOPATH=$(go env GOPATH)
-          pwd
           
           git fetch -at origin --unshallow
           source ./release.sh
@@ -65,17 +62,21 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.create_release.outputs.CREATE_RELEASE }} == 'true'
     steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.13.1' 
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Install yq
+      - name: Install dependencies
         run: |
+          sudo apt-get install rpm ruby ruby-dev rubygems build-essential
+          sudo gem install --no-document fpm
           sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
       - name: package linux
         run : |
-          git fetch -at origin --unshallow
+          export GOPATH=$(go env GOPATH)
           source ./release.sh
-          
           export EXPORTER_PATH=${{needs.create_release.outputs.EXPORTER_PATH}}
           loadVariables
           packageLinux
