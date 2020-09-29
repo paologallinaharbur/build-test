@@ -1,0 +1,40 @@
+on: pull_request
+  #push:
+  #  branches:
+  #    - master
+
+name: Create Release
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Check file changed
+        id: check
+        run : |
+          source ./release.sh
+          checkChanges
+          echo "::set-output name=NAME::$NAME"
+          echo "::set-output name=EXPORTER_HEAD::$EXPORTER_HEAD"
+          echo "::set-output name=EXPORTER_REPO_URL::$EXPORTER_REPO_URL"
+          echo "::set-output name=VERSION::$VERSION"
+          echo "::set-output name=EXPORTER_CHANGELOG::$EXPORTER_CHANGELOG
+          echo "::set-output name=CREATE_RELEASE::$CREATE_RELEASE
+      - name: Create Release
+        if: ${{ steps.check.outputs.CREATE_RELEASE }} == 'true'
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.check.outputs.NAME }}-${{ steps.check.outputs.VERSION }}
+          release_name: Release ${{ steps.check.outputs.NAME }} ${{ steps.check.outputs.VERSION }}
+          body: |
+            Changes in ${{ steps.check.outputs.NAME }} ${{ steps.check.outputs.VERSION }}
+              - Commit or Tag: ${{ steps.check.outputs.EXPORTER_HEAD }}  
+              - ${{ steps.check.outputs.EXPORTER_CHANGELOG }}  
+          draft: true
+          prerelease: false
