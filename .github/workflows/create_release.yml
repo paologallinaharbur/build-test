@@ -18,12 +18,12 @@ jobs:
           git fetch -at origin --unshallow
           source ./release.sh
           checkChanges
-          echo "::set-output name=NAME::$NAME"
-          echo "::set-output name=EXPORTER_HEAD::$EXPORTER_HEAD"
-          echo "::set-output name=EXPORTER_REPO_URL::$EXPORTER_REPO_URL"
-          echo "::set-output name=VERSION::$VERSION"
-          echo "::set-output name=EXPORTER_CHANGELOG::$EXPORTER_CHANGELOG
-          echo "::set-output name=CREATE_RELEASE::$CREATE_RELEASE
+          echo "::set-output name=NAME::${NAME}"
+          echo "::set-output name=EXPORTER_HEAD::${EXPORTER_HEAD}"
+          echo "::set-output name=EXPORTER_REPO_URL::${EXPORTER_REPO_URL}"
+          echo "::set-output name=VERSION::${VERSION}"
+          echo "::set-output name=EXPORTER_CHANGELOG::${EXPORTER_CHANGELOG}"
+          echo "::set-output name=CREATE_RELEASE::${CREATE_RELEASE}"
       - name: Create Release
         if: ${{ steps.check.outputs.CREATE_RELEASE }} == 'true'
         id: create_release
