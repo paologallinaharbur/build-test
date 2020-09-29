@@ -39,14 +39,14 @@ packageLinux(){
     current_pwd=$(pwd)
     cd  ./exporters/"$exporter_name" && make all 
     cd $current_pwd
-    CREATE_RELEASE=true
+    CREATE_RELEASE=TRUE
     EXPORTER_PACKAGE_SUCCEED=$EXPORTER_COMMIT
 }
 
 getExporterPath(){
     old=$(git describe --tags --abbrev=0)
     export EXPORTER_PATH=$(git --no-pager diff  --name-only $old "exporters/**/exporter.yml")
-    CREATE_RELEASE=false
+    CREATE_RELEASE=FALSE
 
     if [ -z "$EXPORTER_PATH" ]
     then

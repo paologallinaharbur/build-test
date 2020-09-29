@@ -39,7 +39,7 @@ jobs:
           
       - name: Create Release
         id: create_release
-        if: ${{ steps.check.outputs.CREATE_RELEASE }} == 'true'
+        if: ${{ steps.check.outputs.CREATE_RELEASE }} == 'TRUE'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -65,7 +65,7 @@ jobs:
     needs: [create_release]
     name: Push Linux Artifacts
     runs-on: ubuntu-latest
-    if: ${{ needs.create_release.outputs.CREATE_RELEASE }} == 'true'
+    if: ${{ needs.create_release.outputs.CREATE_RELEASE == 'TRUE'}}
     steps:
       - uses: actions/setup-go@v2
         with:
@@ -126,7 +126,7 @@ jobs:
     needs: [create_release]
     name: Push Linux Artifacts
     runs-on: ubuntu-latest
-    if: ${{ needs.create_release.outputs.CREATE_RELEASE }} == 'true'
+    if: ${{ needs.create_release.outputs.CREATE_RELEASE  == 'TRUE' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -138,7 +138,7 @@ jobs:
     needs: [create_release]
     name: Push Linux Artifacts
     runs-on: ubuntu-latest
-    if: ${{ needs.create_release.outputs.CREATE_RELEASE }} == 'false'
+    if: ${{ needs.create_release.outputs.CREATE_RELEASE == 'FALSE' }} 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -147,22 +147,12 @@ jobs:
           echo "IF you see this there is something wrong"
           echo ${{ needs.create_release.outputs.CREATE_RELEASE }}
       - name: DEBUG1
-        if: ${{ needs.create_release.outputs.CREATE_RELEASE }} == 'false'
+        if: ${{ needs.create_release.outputs.CREATE_RELEASE == 'FALSE' }} 
         run: |
           echo "IF you see this there is something wrong"
           echo ${{ needs.create_release.outputs.CREATE_RELEASE }}
       - name: DEBUG2
-        if: ${{ needs.create_release.outputs.CREATE_RELEASE }} == 'true'
-        run: |
-          echo "IF you see this there is something wrong"
-          echo ${{ needs.create_release.outputs.CREATE_RELEASE }}
-      - name: DEBUG4
-        if: 'true' == 'false'
-        run: |
-          echo "IF you see this there is something wrong"
-          echo ${{ needs.create_release.outputs.CREATE_RELEASE }}
-      - name: DEBUG5
-        if: 'true' == 'true'
+        if: ${{ needs.create_release.outputs.CREATE_RELEASE  == 'TRUE' }}
         run: |
           echo "IF you see this there is something wrong"
           echo ${{ needs.create_release.outputs.CREATE_RELEASE }}
