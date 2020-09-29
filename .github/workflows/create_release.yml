@@ -24,6 +24,9 @@ jobs:
           echo "::set-output name=VERSION::${VERSION}"
           echo "::set-output name=EXPORTER_CHANGELOG::${EXPORTER_CHANGELOG}"
           echo "::set-output name=CREATE_RELEASE::${CREATE_RELEASE}"
+          echo ${CREATE_RELEASE}
+          echo ${EXPORTER_CHANGELOG}
+          
       - name: Create Release
         if: ${{ steps.check.outputs.CREATE_RELEASE }} == 'true'
         id: create_release
