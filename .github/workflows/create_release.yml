@@ -18,7 +18,7 @@ jobs:
           git fetch -at origin --unshallow
           source ./release.sh
           checkChanges
-          callMakefile
+          callMakefile exporter
           echo "::set-output name=NAME::${NAME}"
           echo "::set-output name=EXPORTER_HEAD::${EXPORTER_HEAD}"
           echo "::set-output name=EXPORTER_REPO_URL::${EXPORTER_REPO_URL}"
