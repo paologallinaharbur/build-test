@@ -15,7 +15,7 @@ jobs:
       - name: Check file changed
         id: check
         run : |
-          git fetch -at origin
+          git fetch -at origin --unshallow
           source ./release.sh
           checkChanges
           echo "::set-output name=NAME::$NAME"
