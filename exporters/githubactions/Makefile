@@ -23,6 +23,8 @@ clean:
 		echo "GOPATH is empty" ;\
 		exit 1 ;\
 	fi
+	@CLONED_REPO="$(echo -e "${CLONED_REPO}" | tr -d '[:space:]')"
+	@TARGET_DIR="$(echo -e "${TARGET_DIR}" | tr -d '[:space:]')"
 	rm -rf $(CLONED_REPO) $(TARGET_DIR)
 
 clone-repo: clean
