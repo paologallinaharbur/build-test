@@ -15,14 +15,19 @@ jobs:
       - name: Check file changed
         id: check
         run : |
+          git fetch -at origin --unshallow
           source ./release.sh
           checkChanges
-          echo "::set-output name=NAME::$NAME"
-          echo "::set-output name=EXPORTER_HEAD::$EXPORTER_HEAD"
-          echo "::set-output name=EXPORTER_REPO_URL::$EXPORTER_REPO_URL"
-          echo "::set-output name=VERSION::$VERSION"
-          echo "::set-output name=EXPORTER_CHANGELOG::$EXPORTER_CHANGELOG
-          echo "::set-output name=CREATE_RELEASE::$CREATE_RELEASE
+          callMakefile $exporter
+          echo "::set-output name=NAME::${NAME}"
+          echo "::set-output name=EXPORTER_HEAD::${EXPORTER_HEAD}"
+          echo "::set-output name=EXPORTER_REPO_URL::${EXPORTER_REPO_URL}"
+          echo "::set-output name=VERSION::${VERSION}"
+          echo "::set-output name=EXPORTER_CHANGELOG::${EXPORTER_CHANGELOG}"
+          echo "::set-output name=CREATE_RELEASE::${CREATE_RELEASE}"
+          echo Creating a release: ${CREATE_RELEASE} having tag ${VERSION} and remote HEAD ${EXPORTER_HEAD}
+          echo Changelog: ${EXPORTER_CHANGELOG}
+          
       - name: Create Release
         if: ${{ steps.check.outputs.CREATE_RELEASE }} == 'true'
         id: create_release

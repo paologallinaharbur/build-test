@@ -3,4 +3,4 @@ VERSION: v1.2
 EXPORTER_REPO_URL: https://github.com/Spendesk/github-actions-exporter
 EXPORTER_TAG: v1.2
 EXPORTER_COMMIT: 3
-EXPORTER_CHANGELOG: "fix structure runners- github api changedsdf"
+EXPORTER_CHANGELOG: "fix structure runners- github api changedsdf.  "

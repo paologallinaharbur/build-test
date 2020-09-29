@@ -12,7 +12,7 @@ loadVariables(){
             myarray+=( "${string%%"$delimiter"*}" )
             string=${string#*"$delimiter"}
         done
-        "${myarray[0]}"="${myarray[1]}"
+        export "${myarray[1]}"="${myarray[2]}"
         
     done < $filename
 
@@ -39,17 +39,16 @@ callMakefile(){
 checkChanges(){
     old=$(git describe --tags --abbrev=0)
     exporter=$(git --no-pager diff  --name-only $old "exporters/**/exporter.yml")
+    CREATE_RELEASE=false
 
     if [ -z "$exporter" ]
     then
-        CREATE_RELEASE=false
         exit 0
     fi
 
     if (( $(git --no-pager diff  --name-only $old "exporters/**/exporter.yml"| wc -l) > 1 ))
     then
         echo "Only one definition should be modified at the same time"
-        CREATE_RELEASE=false
         exit 1
     fi
 }
