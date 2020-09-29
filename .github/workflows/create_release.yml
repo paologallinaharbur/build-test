@@ -127,7 +127,7 @@ jobs:
         run: |
           touch a.msi
 
-  push_Windows_artifacts:
+  push_Windows_artifacts2:
     needs: [create_release]
     name: Push Linux Artifacts
     runs-on: ubuntu-latest
