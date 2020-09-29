@@ -18,7 +18,7 @@ jobs:
       - name: Check file changed
         id: check
         run : |
-          echo $GOPATH
+          export GOPATH=$(go env GOPATH)
           pwd
           
           git fetch -at origin --unshallow
