@@ -8,7 +8,6 @@ name: Create Release
 jobs:
   create_release:
     name: Create Release
-    id: create_release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v2
@@ -24,7 +23,7 @@ jobs:
         run: |
           sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
-      - name: Check file changed
+      - name: Check exporters have been modified
         id: check
         run : |
           export GOPATH=$(go env GOPATH)
@@ -35,7 +34,7 @@ jobs:
 
           getExporterPath
           loadVariables
-          packageLinux
+          packageLinux 
           setStepOutput
 
           echo Creating a release: ${CREATE_RELEASE} having tag ${VERSION} and remote HEAD ${EXPORTER_HEAD}
@@ -43,7 +42,6 @@ jobs:
           
       - name: Create Release
         if: ${{ steps.check.outputs.CREATE_RELEASE }} == 'true'
-        id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -87,7 +85,6 @@ jobs:
 ###
 
       - name: Upload Release Asset deb
-        id: upload-release-asset deb
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -97,7 +94,6 @@ jobs:
           asset_name: ${{needs.create_release.outputs.NAME}}_${{needs.create_release.outputs.VERSION}}-1_amd64.deb
           asset_content_type: deb package
       - name: Upload Release Asset tar
-        id: upload-release-asset-tar
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -107,7 +103,6 @@ jobs:
           asset_name: ${{needs.create_release.outputs.NAME}}_linux_${{needs.create_release.outputs.VERSION}}_amd64.tar.gz
           asset_content_type: tarball
       - name: Upload Release Asset RPM
-        id: upload-release-asset-rpm 
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
