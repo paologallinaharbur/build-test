@@ -76,8 +76,10 @@ jobs:
       - name: package linux
         run : |
           export GOPATH=$(go env GOPATH)
+          export EXPORTER_PATH=${{ needs.create_release.outputs.EXPORTER_PATH }}
+          echo EXPORTER_PATH $EXPORTER_PATH
+          echo ${{ needs.create_release.outputs }}
           source ./release.sh
-          export EXPORTER_PATH=${{needs.create_release.outputs.EXPORTER_PATH}}
           loadVariables
           packageLinux
 
@@ -91,8 +93,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }} 
-          asset_path: ${{needs.create_release.outputs.EXPORTER_PATH}}/target/packages/deb/${{needs.create_release.outputs.NAME}}_${{needs.create_release.outputs.VERSION}}-1_amd64.deb
-          asset_name: ${{needs.create_release.outputs.NAME}}_${{needs.create_release.outputs.VERSION}}-1_amd64.deb
+          asset_path: ${{ needs.create_release.outputs.EXPORTER_PATH }}/target/packages/deb/${{ needs.create_release.outputs.NAME }}_${{ needs.create_release.outputs.VERSION }}-1_amd64.deb
+          asset_name: ${{ needs.create_release.outputs.NAM E}}_${{ needs.create_release.outputs.VERSION }}-1_amd64.deb
           asset_content_type: deb package
       - name: Upload Release Asset tar
         uses: actions/upload-release-asset@v1
@@ -100,8 +102,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{needs.create_release.outputs.EXPORTER_PATH}}/target/packages/tar/${{needs.create_release.outputs.NAME}}_linux_${{needs.create_release.outputs.VERSION}}_amd64.tar.gz
-          asset_name: ${{needs.create_release.outputs.NAME}}_linux_${{needs.create_release.outputs.VERSION}}_amd64.tar.gz
+          asset_path: ${{ needs.create_release.outputs.EXPORTER_PATH }}/target/packages/tar/${{ needs.create_release.outputs.NAME }}_linux_${{ needs.create_release.outputs.VERSION }}_amd64.tar.gz
+          asset_name: ${{ needs.create_release.outputs.NAME }}_linux_${{ needs.create_release.outputs.VERSION }}_amd64.tar.gz
           asset_content_type: tarball
       - name: Upload Release Asset RPM
         uses: actions/upload-release-asset@v1
@@ -109,8 +111,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: ${{needs.create_release.outputs.EXPORTER_PATH}}/target/packages/rpm/${{needs.create_release.outputs.NAME}}-${{needs.create_release.outputs.VERSION}}-1.x86_64.rmp
-          asset_name: ${{needs.create_release.outputs.EXPORTER_PATH}}/target/packages/rpm/${{needs.create_release.outputs.NAME}}-${{needs.create_release.outputs.VERSION}}-1.x86_64.rmp
+          asset_path: ${{ needs.create_release.outputs.EXPORTER_PATH }}/target/packages/rpm/${{ needs.create_release.outputs.NAME }}-${{needs.create_release.outputs.VERSION }}-1.x86_64.rmp
+          asset_name: ${{ needs.create_release.outputs.EXPORTER_PATH }}/target/packages/rpm/${{ needs.create_release.outputs.NAME }}-${{needs.create_release.outputs.VERSION }}-1.x86_64.rmp
           asset_content_type: rpm package
 
   push_Windows_artifacts:
@@ -124,4 +126,15 @@ jobs:
       - name: Install yq
         run: |
           touch a.msi
-          
+
+  push_Windows_artifacts:
+    needs: [create_release]
+    name: Push Linux Artifacts
+    runs-on: ubuntu-latest
+    if: ${{ needs.create_release.outputs.CREATE_RELEASE }} == 'false'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install yq
+        run: |
+          echo "IF you see this there is something wrong"
