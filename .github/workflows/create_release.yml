@@ -113,7 +113,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }} 
-          asset_path: ./exporters/${{ steps.package.outputs.NAME }}/target/packages/rpm/${{ steps.package.outputs.NAME }}-${{ steps.package.outputs.VERSION }}-1.x86_64.rmp
+          asset_path: ./exporters/${{ steps.package.outputs.NAME }}/target/packages/rpm/${{ steps.package.outputs.NAME }}-${{ steps.package.outputs.VERSION }}-1.x86_64.rpm
           asset_name: /${{ steps.package.outputs.NAME }}-${{ steps.package.outputs.VERSION }}-1.x86_64.rpm
           asset_content_type: rpm package
 
