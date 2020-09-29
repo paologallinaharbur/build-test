@@ -18,9 +18,9 @@ loadVariables(){
 
     if [[ -z $EXPORTER_TAG ]]
     then
-        EXPORTER_HEAD=$EXPORTER_TAG
-    else
         EXPORTER_HEAD=$EXPORTER_COMMIT
+    else
+        EXPORTER_HEAD=$EXPORTER_TAG
     fi
 }
 
