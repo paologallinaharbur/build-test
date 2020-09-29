@@ -32,13 +32,7 @@ jobs:
           getExporterPath
           loadVariables
           packageLinux 
-          echo "::set-output name=NAME::${NAME}"
-          echo "::set-output name=EXPORTER_HEAD::${EXPORTER_HEAD}"
-          echo "::set-output name=EXPORTER_REPO_URL::${EXPORTER_REPO_URL}"
-          echo "::set-output name=VERSION::${VERSION}"
-          echo "::set-output name=EXPORTER_CHANGELOG::${EXPORTER_CHANGELOG}"
-          echo "::set-output name=CREATE_RELEASE::${CREATE_RELEASE}"
-          echo "::set-output name=EXPORTER_PATH::${EXPORTER_PATH}"
+          setStepOutput
 
           echo Creating a release: ${CREATE_RELEASE} having tag ${VERSION} and remote HEAD ${EXPORTER_HEAD}
           echo Changelog: ${EXPORTER_CHANGELOG}
@@ -57,6 +51,9 @@ jobs:
               - ${{ steps.check.outputs.EXPORTER_CHANGELOG }}  
           draft: true
           prerelease: false
+    outputs:
+      CREATE_RELEASE: ${{ steps.check.outputs.CREATE_RELEASE }}
+      EXPORTER_PATH: ${{ steps.check.outputs.EXPORTER_PATH }}
 
 ###
 ###   LINUX PACKAGING
@@ -80,6 +77,7 @@ jobs:
           sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
       - name: package linux
+        id: package
         run : |
           export GOPATH=$(go env GOPATH)
           export EXPORTER_PATH=${{ needs.create_release.outputs.EXPORTER_PATH }}
@@ -88,6 +86,7 @@ jobs:
           source ./release.sh
           loadVariables
           packageLinux
+          setStepOutput
 
 ###
 ###   UPLOAD ASSETS 
@@ -98,18 +97,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }} 
-          asset_path: ${{ needs.create_release.outputs.EXPORTER_PATH }}/target/packages/deb/${{ needs.create_release.outputs.NAME }}_${{ needs.create_release.outputs.VERSION }}-1_amd64.deb
-          asset_name: ${{ needs.create_release.outputs.NAME }}_${{ needs.create_release.outputs.VERSION }}-1_amd64.deb
+          upload_url: ${{ steps.package.outputs.upload_url }} 
+          asset_path: ${{ steps.package.outputs.EXPORTER_PATH }}/target/packages/deb/${{ steps.package.outputs.NAME }}_${{ steps.package.outputs.VERSION }}-1_amd64.deb
+          asset_name: ${{ steps.package.outputs.NAME }}_${{ steps.package.outputs.VERSION }}-1_amd64.deb
           asset_content_type: deb package
       - name: Upload Release Asset tar
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ needs.create_release.outputs.EXPORTER_PATH }}/target/packages/tar/${{ needs.create_release.outputs.NAME }}_linux_${{ needs.create_release.outputs.VERSION }}_amd64.tar.gz
-          asset_name: ${{ needs.create_release.outputs.NAME }}_linux_${{ needs.create_release.outputs.VERSION }}_amd64.tar.gz
+          upload_url: ${{ steps.package.outputs.upload_url }}
+          asset_path: ${{ steps.package.outputs.EXPORTER_PATH }}/target/packages/tar/${{ steps.package.outputs.NAME }}_linux_${{ steps.package.outputs.VERSION }}_amd64.tar.gz
+          asset_name: ${{ steps.package.outputs.NAME }}_linux_${{ steps.package.outputs.VERSION }}_amd64.tar.gz
           asset_content_type: tarball
       - name: Upload Release Asset RPM
         uses: actions/upload-release-asset@v1
@@ -117,8 +116,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: ${{ needs.create_release.outputs.EXPORTER_PATH }}/target/packages/rpm/${{ needs.create_release.outputs.NAME }}-${{ needs.create_release.outputs.VERSION }}-1.x86_64.rmp
-          asset_name: ${{ needs.create_release.outputs.EXPORTER_PATH }}/target/packages/rpm/${{ needs.create_release.outputs.NAME }}-${{ needs.create_release.outputs.VERSION }}-1.x86_64.rmp
+          asset_path: ${{ steps.package.outputs.EXPORTER_PATH }}/target/packages/rpm/${{ steps.package.outputs.NAME }}-${{ steps.package.outputs.VERSION }}-1.x86_64.rmp
+          asset_name: ${{ steps.package.outputs.EXPORTER_PATH }}/target/packages/rpm/${{ steps.package.outputs.NAME }}-${{ steps.package.outputs.VERSION }}-1.x86_64.rmp
           asset_content_type: rpm package
 
   push_Windows_artifacts:
