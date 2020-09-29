@@ -104,7 +104,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }}
-          asset_path: ./exporters/${{ steps.package.outputs.NAME }}/target/packages/tar/${{ steps.package.outputs.NAME }}_linux_${{ steps.package.outputs.VERSION }}_amd64.tar.gz
+          asset_path: ./exporters/${{ steps.package.outputs.NAME }}/target/packages/tarball/${{ steps.package.outputs.NAME }}_linux_${{ steps.package.outputs.VERSION }}_amd64.tar.gz
           asset_name: ${{ steps.package.outputs.NAME }}_linux_${{ steps.package.outputs.VERSION }}_amd64.tar.gz
           asset_content_type: tarball
       - name: Upload Release Asset RPM
