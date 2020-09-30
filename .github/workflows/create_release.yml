@@ -6,26 +6,40 @@ on: pull_request
 name: Create Release
 
 jobs:
-  build:
+  create_release:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.13.1' 
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Check file changed
+      - name: Install dependencies
+        run: |
+          sudo apt-get install rpm ruby ruby-dev rubygems build-essential
+          sudo gem install --no-document fpm
+          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+      - name: Check exporters have been modified
         id: check
         run : |
+          export GOPATH=$(go env GOPATH)
+          
+          git fetch -at origin --unshallow
           source ./release.sh
-          checkChanges
-          echo "::set-output name=NAME::$NAME"
-          echo "::set-output name=EXPORTER_HEAD::$EXPORTER_HEAD"
-          echo "::set-output name=EXPORTER_REPO_URL::$EXPORTER_REPO_URL"
-          echo "::set-output name=VERSION::$VERSION"
-          echo "::set-output name=EXPORTER_CHANGELOG::$EXPORTER_CHANGELOG
-          echo "::set-output name=CREATE_RELEASE::$CREATE_RELEASE
+
+          getExporterPath
+          loadVariables
+          packageLinux 
+          setStepOutput
+
+          echo Creating a release: ${CREATE_RELEASE} having tag ${VERSION} and remote HEAD ${EXPORTER_HEAD}
+          echo Changelog: ${EXPORTER_CHANGELOG}
+          
       - name: Create Release
-        if: ${{ steps.check.outputs.CREATE_RELEASE }} == 'true'
         id: create_release
+        if: ${{ steps.check.outputs.CREATE_RELEASE }} == 'TRUE'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,3 +52,84 @@ jobs:
               - ${{ steps.check.outputs.EXPORTER_CHANGELOG }}  
           draft: true
           prerelease: false
+    outputs:
+      CREATE_RELEASE: ${{ steps.check.outputs.CREATE_RELEASE }}
+      EXPORTER_PATH: ${{ steps.check.outputs.EXPORTER_PATH }}
+      UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
+
+###
+###   LINUX PACKAGING
+###
+
+  push_linux_artifacts:
+    needs: [create_release]
+    name: Push Linux Artifacts
+    runs-on: ubuntu-latest
+    if: ${{ needs.create_release.outputs.CREATE_RELEASE == 'TRUE'}}
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.13.1' 
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt-get install rpm ruby ruby-dev rubygems build-essential
+          sudo gem install --no-document fpm
+          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+      - name: package linux
+        id: package
+        run : |
+          export GOPATH=$(go env GOPATH)
+          export EXPORTER_PATH=${{ needs.create_release.outputs.EXPORTER_PATH }}
+          echo EXPORTER_PATH $EXPORTER_PATH
+          echo ${{ needs.create_release.outputs }}
+          source ./release.sh
+          loadVariables
+          packageLinux
+          setStepOutput
+      - name: Upload Release Asset DEB
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }} 
+          asset_path: ./exporters/${{ steps.package.outputs.NAME }}/target/packages/deb/${{ steps.package.outputs.NAME }}_${{ steps.package.outputs.VERSION }}-1_amd64.deb
+          asset_name: ${{ steps.package.outputs.NAME }}_${{ steps.package.outputs.VERSION }}-1_amd64.deb
+          asset_content_type: deb package
+      - name: Upload Release Asset TAR
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }}
+          asset_path: ./exporters/${{ steps.package.outputs.NAME }}/target/packages/tarball/${{ steps.package.outputs.NAME }}_linux_${{ steps.package.outputs.VERSION }}_amd64.tar.gz
+          asset_name: ${{ steps.package.outputs.NAME }}_linux_${{ steps.package.outputs.VERSION }}_amd64.tar.gz
+          asset_content_type: tarball
+      - name: Upload Release Asset RPM
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.UPLOAD_URL }} 
+          asset_path: ./exporters/${{ steps.package.outputs.NAME }}/target/packages/rpm/${{ steps.package.outputs.NAME }}-${{ steps.package.outputs.VERSION }}-1.x86_64.rpm
+          asset_name: /${{ steps.package.outputs.NAME }}-${{ steps.package.outputs.VERSION }}-1.x86_64.rpm
+          asset_content_type: rpm package
+
+
+###
+###   Windows Packaging 
+###
+
+  push_Windows_artifacts:
+    needs: [create_release]
+    name: Push Linux Artifacts
+    runs-on: ubuntu-latest
+    if: ${{ needs.create_release.outputs.CREATE_RELEASE  == 'TRUE' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install yq
+        run: |
+          touch a.msi

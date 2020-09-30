@@ -1,55 +1,61 @@
 #!/usr/bin/env bash
 
 loadVariables(){
-    filename="$1"
-    while read line
-    do 
-        delimiter=": "
-        string=$line$delimiter
 
-        myarray=()
-        while [[ $string ]]; do
-            myarray+=( "${string%%"$delimiter"*}" )
-            string=${string#*"$delimiter"}
-        done
-        "${myarray[0]}"="${myarray[1]}"
-        
-    done < $filename
+    export NAME=$(yq read $EXPORTER_PATH name)
+    export VERSION=$(yq read $EXPORTER_PATH version)
+    export EXPORTER_REPO_URL=$(yq read $EXPORTER_PATH exporter_repo_url)
+    export EXPORTER_TAG=$(yq read $EXPORTER_PATH exporter_tag)
+    export EXPORTER_COMMIT=$(yq read $EXPORTER_PATH exporter_commit)
+    export EXPORTER_CHANGELOG=$(yq read $EXPORTER_PATH exporter_changelog)
 
+    echo $EXPORTER_TAG
     if [[ -z $EXPORTER_TAG ]]
     then
-        EXPORTER_HEAD=$EXPORTER_TAG
+        export EXPORTER_HEAD=$EXPORTER_COMMIT
     else
-        EXPORTER_HEAD=$EXPORTER_COMMIT
+        export  EXPORTER_HEAD=$EXPORTER_TAG 
     fi
 }
 
-callMakefile(){
-    exporter_path="$1" 
-    IFS="/" read tmp exporter_name exporter_yaml <<< "$exporter_path" 
+setStepOutput(){
+    echo "::set-output name=NAME::${NAME}"
+    echo "::set-output name=EXPORTER_HEAD::${EXPORTER_HEAD}"
+    echo "::set-output name=EXPORTER_REPO_URL::${EXPORTER_REPO_URL}"
+    echo "::set-output name=VERSION::${VERSION}"
+    echo "::set-output name=EXPORTER_CHANGELOG::${EXPORTER_CHANGELOG}"
+    echo "::set-output name=CREATE_RELEASE::${CREATE_RELEASE}"
+    echo "::set-output name=EXPORTER_PATH::${EXPORTER_PATH}"
+}
 
-    loadVariables $exporter_path
+packageLinux(){
+    IFS="/" read tmp exporter_name exporter_yaml <<< $EXPORTER_PATH 
+
+    if [ $exporter_name != $NAME ]; then
+        echo "The exporter.yml is in a wrong folder. The name in the definition '$NAME' does not match with the foldername '$exporter_name'" 
+        exit 1
+    fi
+
     current_pwd=$(pwd)
     cd  ./exporters/"$exporter_name" && make all 
     cd $current_pwd
-    CREATE_RELEASE=true
+    CREATE_RELEASE=TRUE
     EXPORTER_PACKAGE_SUCCEED=$EXPORTER_COMMIT
 }
 
-checkChanges(){
+getExporterPath(){
     old=$(git describe --tags --abbrev=0)
-    exporter=$(git --no-pager diff  --name-only $old "exporters/**/exporter.yml")
+    export EXPORTER_PATH=$(git --no-pager diff  --name-only $old "exporters/**/exporter.yml")
+    CREATE_RELEASE=FALSE
 
-    if [ -z "$exporter" ]
+    if [ -z "$EXPORTER_PATH" ]
     then
-        CREATE_RELEASE=false
         exit 0
     fi
 
     if (( $(git --no-pager diff  --name-only $old "exporters/**/exporter.yml"| wc -l) > 1 ))
     then
         echo "Only one definition should be modified at the same time"
-        CREATE_RELEASE=false
         exit 1
     fi
 }
