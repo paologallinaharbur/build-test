@@ -1,10 +1,8 @@
 # Exporter yml variables
 NAME ?= githubactions
-VERSION ?= v1.2
+VERSION ?= 1.2.0
 EXPORTER_REPO_URL ?= https://github.com/Spendesk/github-actions-exporter
-EXPORTER_TAG ?= v1.2
-EXPORTER_COMMIT ?= 5ab74d5af9eb533e6564996bde43528175092591
-EXPORTER_HEAD := $(if $(EXPORTER_TAG),$(EXPORTER_TAG),$(EXPORTER_COMMIT))
+EXPORTER_HEAD ?= v1.2
 
 IMPORT_PATH := $(subst https://,,$(EXPORTER_REPO_URL))
 CLONED_REPO := $(GOPATH)/src/$(IMPORT_PATH)

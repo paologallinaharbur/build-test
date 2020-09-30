@@ -8,6 +8,9 @@ loadVariables(){
     export EXPORTER_TAG=$(yq read $EXPORTER_PATH exporter_tag)
     export EXPORTER_COMMIT=$(yq read $EXPORTER_PATH exporter_commit)
     export EXPORTER_CHANGELOG=$(yq read $EXPORTER_PATH exporter_changelog)
+    export PACKAGE_LINUX=$(yq read $EXPORTER_PATH package_linux)
+    export PACKAGE_WINDOWS=$(yq read $EXPORTER_PATH package_windows)
+
 
     echo $EXPORTER_TAG
     if [[ -z $EXPORTER_TAG ]]
@@ -26,6 +29,8 @@ setStepOutput(){
     echo "::set-output name=EXPORTER_CHANGELOG::${EXPORTER_CHANGELOG}"
     echo "::set-output name=CREATE_RELEASE::${CREATE_RELEASE}"
     echo "::set-output name=EXPORTER_PATH::${EXPORTER_PATH}"
+    echo "::set-output name=PACKAGE_LINUX::${PACKAGE_LINUX}"
+    echo "::set-output name=PACKAGE_WINDOWS::${PACKAGE_WINDOWS}"
 }
 
 packageLinux(){
@@ -39,14 +44,12 @@ packageLinux(){
     current_pwd=$(pwd)
     cd  ./exporters/"$exporter_name" && make all 
     cd $current_pwd
-    CREATE_RELEASE=TRUE
-    EXPORTER_PACKAGE_SUCCEED=$EXPORTER_COMMIT
 }
 
 getExporterPath(){
     old=$(git describe --tags --abbrev=0)
     export EXPORTER_PATH=$(git --no-pager diff  --name-only $old "exporters/**/exporter.yml")
-    CREATE_RELEASE=FALSE
+    CREATE_RELEASE=false
 
     if [ -z "$EXPORTER_PATH" ]
     then
@@ -58,6 +61,8 @@ getExporterPath(){
         echo "Only one definition should be modified at the same time"
         exit 1
     fi
+    CREATE_RELEASE=true
+
 }
 
 

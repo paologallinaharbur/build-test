@@ -4,3 +4,5 @@ exporter_repo_url: https://github.com/Spendesk/github-actions-exporter
 exporter_tag: v1.2
 exporter_commit: 3wfwef
 exporter_changelog: "Changelog for the current version"
+package_linux: true
+package_windows: true
