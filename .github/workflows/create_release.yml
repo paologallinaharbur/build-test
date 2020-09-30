@@ -1,7 +1,8 @@
-on: pull_request
-  #push:
-  #  branches:
-  #    - master
+on: 
+#pull_request
+  push:
+    branches:
+      - master
 
 name: Create Release
 
@@ -50,7 +51,7 @@ jobs:
             Changes in ${{ steps.check.outputs.NAME }} ${{ steps.check.outputs.VERSION }}
               - Commit or Tag: ${{ steps.check.outputs.EXPORTER_HEAD }}  
               - ${{ steps.check.outputs.EXPORTER_CHANGELOG }}  
-          draft: true
+          draft: false
           prerelease: false
     outputs:
       CREATE_RELEASE: ${{ steps.check.outputs.CREATE_RELEASE }}
