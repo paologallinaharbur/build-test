@@ -1,5 +1,5 @@
 name: githubactions
-version: v1.2
+version: 1.2.0
 exporter_repo_url: https://github.com/Spendesk/github-actions-exporter
 exporter_tag: v1.2
 exporter_commit: 3wfwef
