@@ -5,4 +5,4 @@ exporter_tag: 0.3.0
 exporter_commit: 
 exporter_changelog: https://github.com/marcinbudny/ravendb_exporter#030
 package_linux: true
-package_windows: true
+package_windows: false

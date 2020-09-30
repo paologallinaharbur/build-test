@@ -84,7 +84,7 @@ jobs:
     needs: [create_release]
     name: Push Linux Artifacts
     runs-on: ubuntu-latest
-    if: ${{ needs.create_release.outputs.CREATE_RELEASE == 'true' && steps.check.outputs.PACKAGE_LINUX == 'true'}}
+    if: ${{ needs.create_release.outputs.CREATE_RELEASE == 'true' && needs.create_release.outputs.PACKAGE_LINUX == 'true'}}
     steps:
       - uses: actions/setup-go@v2
         with:
@@ -143,7 +143,7 @@ jobs:
     name: Create MSI+zip+Push GH
     runs-on: windows-2019
     needs: [create_release]
-    if: ${{ needs.create_release.outputs.CREATE_RELEASE == 'true' && steps.check.outputs.PACKAGE_WINDOWS == 'true' }}
+    if: ${{ needs.create_release.outputs.CREATE_RELEASE == 'true' && needs.create_release.outputs.PACKAGE_WINDOWS == 'true' }}
     env:
       GOPATH: ${{ github.workspace }}
     defaults:
