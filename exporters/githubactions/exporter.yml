@@ -12,7 +12,7 @@ exporter_commit:
 exporter_changelog: https://github.com/Spendesk/github-actions-exporter/releases
 # Enable packages for Linux
 package_linux: true
-# Enable packages for Windows
+# Enable packages for Windows 
 package_windows: true
 # Exporter GUID used in the msi package Requiered if package_windows is set to true
 # This GUID should be generated and be unique across all exporters in the repository
